@@ -1,3 +1,18 @@
+# Copyright (C) 2025 Wang Guibao
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import glob
 import sys
 import os
@@ -57,7 +72,7 @@ def finish_table(f):
     f.write('</div>')
 
 def create_html(path):
-    fname = 'index.html'
+    fname = os.path.join(path, 'index.html')
     f = open(fname, 'w')
     write_html_head(f)
 
@@ -65,21 +80,21 @@ def create_html(path):
 
     top_level_images = []
     for entry in it:
-        print(entry.path)
+        # print(entry.path)
         if not entry.is_dir():
             if (mimetypes.guess_type(entry.path)[0].startswith('image')):
-                top_level_images.append(entry.path)
+                top_level_images.append(os.path.relpath(entry.path, path))
             continue
 
         write_header(f, 'H1', entry.name)
 
         subpath = os.path.join(path, entry.name)
-        print(subpath)
+        # print(subpath)
         subentries = os.scandir(subpath)
 
         write_table(f)
         for p in subentries:
-            print(p.path)
+            # print(p.path)
             if mimetypes.guess_type(p.path)[0].startswith('image'):
                 write_image_div(f, p.path)
 
@@ -96,9 +111,10 @@ def create_html(path):
     f.close()
 
 if __name__ == '__main__':
-    print(len(sys.argv))
+    # print(len(sys.argv))
     if len(sys.argv) != 2:
         print('Usage: python3 htmlgallery.py PATH/')
         sys.exit(0)
     path = sys.argv[1].rstrip('/\\')
     create_html(path)
+    print('Your HTML is at ' + os.path.abspath(path))
